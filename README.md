@@ -11,7 +11,7 @@
 ### **Data Handling & Logic**
 *   **LocalStorage API**: Feature implementation **Auto-save** 
 *   **FileReader API**: Attaching Images
-*   **Array Methods**: Using methods such as `map`, `filter`, và `sort` 
+*   **Array Methods**: Using methods such as `map`, `filter`, and `sort` 
 
 ### **Development Environment**
 *   **Vite**
