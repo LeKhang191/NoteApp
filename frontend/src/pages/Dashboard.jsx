@@ -1,22 +1,32 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import NoteCard from '../components/NoteCard';
 import { LayoutGrid, List, Search, Plus, Pin, Trash2 } from 'lucide-react'; 
 
 const Dashboard = () => {
   const [viewMode, setViewMode] = useState('grid');
+  const [editingNote, setEditingNote] = useState(null);
   const [searchTerm, setSearchTerm] = useState(""); 
   const [newNote, setNewNote] = useState({ title: "", content: ""});
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  // Test
-  const [notes, setNotes] = useState([
-    { id: 1, title: "Test1", content: "complelte dashboard interface", isPinned: false },
-    { id: 2, title: "Test2", content: "using color", isPinned: false },
-    { id: 3, title: "Test3", content: "rubrik checkcheck", isPinned: false }
-  ]);
+  // 14
+  const [notes, setNotes] = useState(() => {
+    const saved = localStorage.getItem('note-app-data');
+    if (saved) 
+      return JSON.parse(saved);
+    return [
+      { id: 1, title: "Test1", content: "complelte dashboard interface", isPinned: false },
+      { id: 2, title: "Test2", content: "using color", isPinned: false },
+      { id: 3, title: "Test3", content: "rubrik checkcheck", isPinned: false }
+    ];
+  });
+
+  useEffect(() => {
+    localStorage.setItem('note-app-data', JSON.stringify(notes));
+  }, [notes]);
 
   const handleDelete = (id) => {
-    if (window.confirm("U sure to delete this note?")) { // Tiêu chí 13
+    if (window.confirm("U sure to delete this note?")) { // 13
       setNotes(notes.filter(note => note.id !== id));
     }
   };
@@ -24,13 +34,26 @@ const Dashboard = () => {
   const handleCreateNote = (e) => {
     e.preventDefault();
     if (!newNote.title.trim()) return;
-    const noteToAdd = { id: Date.now(), ...newNote, isPinned: false, labels: [] };
-    setNotes([noteToAdd, ...notes]); // Tiêu chí 11
+    if (editingNote) {
+      //update note
+      setNotes(notes.map(n => n.id === editingNote.id ? { ...n, ...newNote} : n));
+    } else {
+      //Create new note
+      const noteToAdd = { id: Date.now(), ...newNote, isPinned: false, labels: [] };
+      setNotes([noteToAdd, ...notes]);
+    }
+    setEditingNote(null);
     setNewNote({ title: "", content: "" });
     setIsModalOpen(false);
   };
 
-  const togglePin = (id) => { // Tiêu chí 16
+  const startEditing = (note) => {
+    setEditingNote(note);
+    setNewNote({ title:note.title, content: note.content });
+    setIsModalOpen(true);
+  };
+
+  const togglePin = (id) => { // 16
     setNotes(notes.map(note => note.id === id ? { ...note, isPinned: !note.isPinned } : note));
   };
 
@@ -44,17 +67,15 @@ const Dashboard = () => {
   return (
     <div className="min-h-screen bg-white p-8 text-[#37352f]">
       <div className="max-w-6xl mx-auto">
-        {/* Header */}
         <div className="flex justify-between items-start mb-8">
           <div>
-            <h1 className="text-4xl font-bold tracking-tight text-black">My Note</h1>
-            <p className="text-[#9b9a97] mt-2">Save place</p>
+            <h1 className="text-4xl font-bold tracking-tight text-black">MY NOTE</h1>
           </div>
           <button 
             onClick={() => setIsModalOpen(true)}
             className="flex items-center gap-2 bg-[#37352f] text-white px-4 py-2 rounded-md hover:bg-black transition-all"
           >
-            <Plus size={18} /> Add Note
+            <Plus size={18} /> Add 
           </button>
         </div>
 
@@ -101,13 +122,13 @@ const Dashboard = () => {
       {isModalOpen && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
           <div className="bg-white border border-gray-200 w-full max-w-md rounded-xl p-6 shadow-2xl">
-            <h2 className="text-xl font-bold mb-4">New Note</h2>
+            <h2 className="text-xl font-bold mb-4">{editingNote ? "Edit Note" : "New Note"}</h2>
             <form onSubmit={handleCreateNote}>
               <input type="text" placeholder='Title' className="w-full border-b pb-2 mb-4 outline-none font-semibold text-black" value={newNote.title} onChange={(e) => setNewNote({...newNote, title: e.target.value})} />
               <textarea placeholder="Write something..." className="w-full outline-none text-gray-600 h-32 resize-none" value={newNote.content} onChange={(e) => setNewNote({...newNote, content: e.target.value})}></textarea>
               <div className="flex justify-end gap-3 mt-4">
-                <button type="button" onClick={() => setIsModalOpen(false)} className="px-4 py-2 text-gray-400">Cancel</button>
-                <button type="submit" className="px-4 py-2 bg-blue-600 text-white rounded-md">Create</button>
+                <button type="button" onClick={() => { setIsModalOpen(false); setEditingNote(null); }} className="px-4 py-2 text-gray-400">Cancel</button>
+                <button type="submit" className="px-4 py-2 bg-blue-600 text-white rounded-md">{editingNote ? "Update" : "Create"}</button>
               </div>
             </form>
           </div>
