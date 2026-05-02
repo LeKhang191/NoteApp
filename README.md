@@ -16,6 +16,6 @@
 ### **Development Environment**
 *   **Vite**
 *   **Browser DevTools**
-*   **Operating System**: **ArchLinux**.
+*   **Operating System**: **ArchLinux** , **Windows**
 
 ---
