@@ -47,6 +47,18 @@ const Dashboard = () => {
     setIsModalOpen(false);
   };
 
+  // 15
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setNewNote({ ...newNote, image: reader.result });
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
   const startEditing = (note) => {
     setEditingNote(note);
     setNewNote({ title:note.title, content: note.content });
@@ -58,8 +70,7 @@ const Dashboard = () => {
   };
 
   const filteredNotes = notes.filter(note => 
-    note.title.toLowerCase().includes(searchTerm.toLowerCase()) || 
-    note.content.toLowerCase().includes(searchTerm.toLowerCase())
+    note.title.toLowerCase().includes(searchTerm.toLowerCase()) || note.content.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   const displayNotes = [...filteredNotes].sort((a, b) => (b.isPinned ? 1 : 0) - (a.isPinned ? 1 : 0));
@@ -91,26 +102,41 @@ const Dashboard = () => {
           </div>
 
           <div className="flex bg-[#f7f7f5] p-1 rounded-lg border border-[#e9e9e8]">
-            <button onClick={() => setViewMode('grid')} className={`p-2 rounded-md flex items-center gap-2 text-sm ${viewMode === 'grid' ? 'bg-white shadow-sm' : 'text-[#9b9a97]'}`}><LayoutGrid size={16} /> Grid</button>
-            <button onClick={() => setViewMode('list')} className={`p-2 rounded-md flex items-center gap-2 text-sm ${viewMode === 'list' ? 'bg-white shadow-sm' : 'text-[#9b9a97]'}`}><List size={16} /> List</button>
+            <button 
+              onClick={() => setViewMode('grid')} 
+              className={`p-2 rounded-md flex items-center gap-2 text-sm ${viewMode === 'grid' ? 'bg-white shadow-sm' : 'text-[#9b9a97]'}`}
+            >
+              <LayoutGrid size={16} /> Grid
+            </button> 
+            <button 
+              onClick={() => setViewMode('list')} 
+              className={`p-2 rounded-md flex items-center gap-2 text-sm ${viewMode === 'list' ? 'bg-white shadow-sm' : 'text-[#9b9a97]'}`}
+            >
+              <List size={16} /> List
+            </button>
           </div>
         </div>
 
         <div className={viewMode === 'grid' ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" : "flex flex-col gap-3"}>
           {displayNotes.map(note => (
-            <div key={note.id} className="relative group">
+            <div 
+              key={note.id} 
+              className="relative group" 
+              onClick={() => startEditing(note)}
+            >
               <NoteCard 
                 title={note.title} 
                 content={note.content} 
+                image={note.image}
                 viewMode={viewMode}
                 isPinned={note.isPinned}
               />
               
               <div className="absolute top-3 right-3 flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-all z-20">
-                <button onClick={() => togglePin(note.id)} className={`p-1.5 rounded-md border ${note.isPinned ? 'bg-yellow-500/20 border-yellow-500 text-yellow-600' : 'bg-white border-gray-200 text-gray-400'}`}>
+                <button onClick={(e) => { e.stopPropagation(); togglePin(note.id)}} className={`p-1.5 rounded-md border ${note.isPinned ? 'bg-yellow-500/20 border-yellow-500 text-yellow-600' : 'bg-white border-gray-200 text-gray-400'}`}>
                   <Pin size={14} fill={note.isPinned ? "currentColor" : "none"} />
                 </button>
-                <button onClick={() => handleDelete(note.id)} className="p-1.5 bg-white border border-red-100 text-red-400 hover:bg-red-50 rounded-md">
+                <button onClick={(e) => { e.stopPropagation(); handleDelete(note.id)}} className="p-1.5 bg-white border border-red-100 text-red-400 hover:bg-red-50 rounded-md">
                   <Trash2 size={14} />
                 </button>
               </div>
@@ -126,6 +152,27 @@ const Dashboard = () => {
             <form onSubmit={handleCreateNote}>
               <input type="text" placeholder='Title' className="w-full border-b pb-2 mb-4 outline-none font-semibold text-black" value={newNote.title} onChange={(e) => setNewNote({...newNote, title: e.target.value})} />
               <textarea placeholder="Write something..." className="w-full outline-none text-gray-600 h-32 resize-none" value={newNote.content} onChange={(e) => setNewNote({...newNote, content: e.target.value})}></textarea>
+              <div className="mt-4"> 
+                <input 
+                  type="file" 
+                  accept="image/*"
+                  onChange={handleImageChange}
+                  className="text-sm text-gray-500 file:py-1 file:px-3 file: rounded-full file: border-0 file:bg-gray-100 file:text-gray-700 hover:file:bg-gray-200 cursor-pointer"
+                  />
+                  {newNote.image && (
+                    <div className="mt-2 relative inline-block">
+                      <img src={newNote.image} alt="Preview" className="h-20 w-auto rounded border" />
+                      <button
+                        type="button"
+                        onClick={() => setNewNote({ ...newNote, image: null })}
+                        className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1"
+                      >
+                        <Plus size={12} className="rotate-45" /> 
+                      </button>
+                    </div>
+                  )}           
+              </div>
+
               <div className="flex justify-end gap-3 mt-4">
                 <button type="button" onClick={() => { setIsModalOpen(false); setEditingNote(null); }} className="px-4 py-2 text-gray-400">Cancel</button>
                 <button type="submit" className="px-4 py-2 bg-blue-600 text-white rounded-md">{editingNote ? "Update" : "Create"}</button>
@@ -135,6 +182,8 @@ const Dashboard = () => {
         </div>
       )}
     </div>
+
+    
   );
 };
 
