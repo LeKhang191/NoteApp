@@ -1,12 +1,21 @@
 # Neat New Notes
-##JavaScript (ReactJS) => notes, isModalOPen, viewMode
-##HTML5 & CSS3 
-##Tailwind CSS
-##Lucide React (icon)
-##LocalStorage API (autosave => JSON string)
-##FIleReader API (attach images)
-##Array Methods (map, filter, sort)
-##Vite (run localhost)
-##Browser DevTool
 
-##Operating System: ArchLinux
+## Tools
+
+### **Frontend Core**
+*   **JavaScript (ReactJS)**
+*   **HTML5 & CSS3**
+*   **Tailwind CSS**
+*   **Lucide React**
+
+### **Data Handling & Logic**
+*   **LocalStorage API**: Feature implementation **Auto-save** 
+*   **FileReader API**: Attaching Images
+*   **Array Methods**: Using methods such as `map`, `filter`, và `sort` 
+
+### **Development Environment**
+*   **Vite**
+*   **Browser DevTools**
+*   **Operating System**: **ArchLinux**.
+
+---
