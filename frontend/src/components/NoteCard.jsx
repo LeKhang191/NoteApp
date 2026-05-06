@@ -6,11 +6,11 @@ const NoteCard = ({ title, content, image, isPinned, viewMode }) => {
     <div className={`
       relative border rounded-lg transition-all group overflow-hidden
       ${viewMode === 'list' ? 'flex items-center gap-4 p-3' : 'flex flex-col'}
-      bg-[#1a1a1a] border-gray-700 hover:border-gray-500 hover:shadow-lg
+      bg-white border-[#e9e9e8] hover:border-[#d3d3d2] hover:shadow-md
     `}>
 
       {image && viewMode === 'grid' && (
-        <div className="w-full h-40 overflow-hidden border-b border-gray-700">
+        <div className="w-full h-40 overflow-hidden border-b border-[#e9e9e8]">
           <img 
             src={image}
             alt="Attachment" 
@@ -31,15 +31,15 @@ const NoteCard = ({ title, content, image, isPinned, viewMode }) => {
       
       <div className={`p-4 ${image && viewMode === 'grid' ? 'pt-3' : ''} flex-1`}>
         <div className="flex items-start justify-between gap-2">
-          <h3 className="font-bold text-white line-clamp-1 leading-tight flex-1">{title || "Untitled"}</h3>
+          <h3 className="font-bold text-[#37352f] line-clamp-1 leading-tight flex-1">{title || "Untitled"}</h3>
         </div>
 
-        <p className="text-sm text-gray-400 mt-2 line-clamp-3 leading-relaxed">
+        <p className="text-sm text-[#37352f]/70 mt-2 line-clamp-3 leading-relaxed">
           {content || "No content..."}
         </p>
 
         {isPinned && (
-          <div className="mt-3 flex items-center gap-1 text-[10px] text-yellow-500 font-bold tracking-widest uppercase">
+          <div className="mt-3 flex items-center gap-1 text-[10px] text-yellow-600 font-bold tracking-widest uppercase">
             <Pin size={10} fill="currentColor" /> Pinned
           </div>
         )}
