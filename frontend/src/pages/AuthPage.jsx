@@ -23,7 +23,7 @@ const AuthPage = () => {
         <div className="w-12 h-12 border-2 border-[#37352f] rounded-xl flex items-center justify-center mb-3 shadow-[4px_4px_0px_0px_rgba(55,53,47,1)]">
           <span className="text-2xl font-black">N</span>
         </div>
-        <h1 className="text-xl font-bold tracking-tight">Noteapp</h1>
+        <h1 className="text-xl font-bold tracking-tight">Note App</h1>
       </div>
 
       <div className="w-full max-w-[400px] space-y-6">

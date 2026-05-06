@@ -230,7 +230,7 @@ const Dashboard = () => {
               <div className="flex justify-end gap-3 mt-10">
                 <button type="button" onClick={() => { setIsModalOpen(false); setEditingNote(null); }} className="px-3 py-1.5 text-sm text-[#9b9a97] hover:text-[#37352f] transition-colors">Discard</button>
                 <button type="submit" className="px-4 py-1.5 bg-[#37352f] text-white rounded text-sm font-medium hover:bg-black transition-all">
-                  {editingNote ? "Save changes" : "Create page"}
+                  {editingNote ? "Save changes" : "Create note"}
                 </button>
               </div>
             </form>
