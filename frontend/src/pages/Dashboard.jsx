@@ -2,7 +2,8 @@ import React, { useState, useEffect } from 'react';
 import NoteCard from '../components/NoteCard';
 import { 
   LayoutGrid, List, Search, Plus, Pin, Trash2, 
-  Settings, Clock, ChevronLeft, Menu, Tag, BookOpen
+  Settings, Clock, ChevronLeft, Menu, Tag, BookOpen,
+  LogOut
 } from 'lucide-react'; 
 
 const Dashboard = () => {
@@ -97,6 +98,18 @@ const Dashboard = () => {
           </button>
           <button className="flex items-center justify-between p-1.5 hover:bg-[#ebebeb] rounded-md text-sm">
             <div className="flex items-center gap-2"><Tag size={16}/> Promotion</div>
+          </button>
+
+          <button 
+            onClick={() => {
+              if(window.confirm("Are you sure to log out?")) {
+                window.location.href = "/login"; 
+              }
+            }}
+            className="flex items-center gap-2 p-1.5 hover:bg-[#fee2e2] hover:text-red-600 rounded-md text-sm text-[#37352f] transition-colors mt-1"
+          >
+            <LogOut size={16} />
+            <span>Log out</span>
           </button>
         </div>
       </aside>
