@@ -9,6 +9,9 @@ const noteSchema = new mongoose.Schema({
   // Yêu cầu 21 & 22: Ghi chú bảo vệ bằng mật khẩu
   isProtected: { type: Boolean, default: false },
   notePassword: { type: String }, // Lưu mật khẩu băm
+
+  isPinned: { type: Boolean, default: false },
+  pinnedAt: { type: Date, default: null },
   
   // Yêu cầu 23: Chia sẻ ghi chú
   sharedWith: [{

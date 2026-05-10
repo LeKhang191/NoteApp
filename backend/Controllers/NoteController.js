@@ -62,12 +62,12 @@ exports.togglePin = async (req, res) => {
         const note = await Note.findOne({ _id: req.params.id, owner: req.user.id });
         if (!note) return res.status(404).json({ message: "Không tìm thấy note." });
 
+        // Đảo ngược trạng thái pin (true thành false và ngược lại)
         note.isPinned = !note.isPinned;
-        note.pinnedAt = note.isPinned ? new Date() : null;
         await note.save();
 
-        res.json({ isPinned: note.isPinned });
+        res.json(note);
     } catch (error) {
-        res.status(500).json({ message: "Lỗi hệ thống." });
+        res.status(500).json({ message: "Lỗi hệ thống khi pin note." });
     }
 };
