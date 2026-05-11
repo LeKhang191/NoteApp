@@ -19,19 +19,19 @@ exports.enablePassword = async (req, res) => {
         const { password, confirmPassword } = req.body;
         const note = await Note.findOne({ _id: req.params.id, owner: req.user.id });
 
-        if (!note) return res.status(404).json({ message: "Không tìm thấy note." });
-        if (note.isProtected) return res.status(400).json({ message: "Note này đã được bảo vệ." });
-        if (!password || !confirmPassword) return res.status(400).json({ message: "Vui lòng nhập đầy đủ." });
-        if (password !== confirmPassword) return res.status(400).json({ message: "Mật khẩu xác nhận không khớp." });
+        if (!note) return res.status(404).json({ message: "Note not found." });
+        if (note.isProtected) return res.status(400).json({ message: "Note is already protected." });
+        if (!password || !confirmPassword) return res.status(400).json({ message: "Please fill in all fields." });
+        if (password !== confirmPassword) return res.status(400).json({ message: "Confirm password does not match." });
 
         const salt = await bcrypt.genSalt(10);
         note.isProtected = true;
         note.notePassword = await bcrypt.hash(password, salt);
         await note.save();
 
-        res.json({ message: "Đã bật bảo vệ mật khẩu cho note!" });
+        res.json({ message: "Note protected with password." });
     } catch (error) {
-        res.status(500).json({ message: "Lỗi hệ thống." });
+        res.status(500).json({ message: "System error." });
     }
 };
 
@@ -43,19 +43,19 @@ exports.disablePassword = async (req, res) => {
         const { password } = req.body;
         const note = await Note.findOne({ _id: req.params.id, owner: req.user.id });
 
-        if (!note) return res.status(404).json({ message: "Không tìm thấy note." });
-        if (!note.isProtected) return res.status(400).json({ message: "Note này chưa được bảo vệ." });
+        if (!note) return res.status(404).json({ message: "Note not found." });
+        if (!note.isProtected) return res.status(400).json({ message: "Note is not protected." });
 
         const isMatch = await bcrypt.compare(password, note.notePassword);
-        if (!isMatch) return res.status(401).json({ message: "Mật khẩu không đúng." });
+        if (!isMatch) return res.status(401).json({ message: "Incorrect password." });
 
         note.isProtected = false;
         note.notePassword = undefined;
         await note.save();
 
-        res.json({ message: "Đã tắt bảo vệ mật khẩu." });
+        res.json({ message: "Password protection disabled." });
     } catch (error) {
-        res.status(500).json({ message: "Lỗi hệ thống." });
+        res.status(500).json({ message: "System error." });
     }
 };
 
@@ -67,20 +67,20 @@ exports.changeNotePassword = async (req, res) => {
         const { currentPassword, newPassword, confirmPassword } = req.body;
         const note = await Note.findOne({ _id: req.params.id, owner: req.user.id });
 
-        if (!note) return res.status(404).json({ message: "Không tìm thấy note." });
-        if (!note.isProtected) return res.status(400).json({ message: "Note này chưa được bảo vệ." });
-        if (newPassword !== confirmPassword) return res.status(400).json({ message: "Mật khẩu mới không khớp." });
+        if (!note) return res.status(404).json({ message: "Note not found." });
+        if (!note.isProtected) return res.status(400).json({ message: "Note is not protected." });
+        if (newPassword !== confirmPassword) return res.status(400).json({ message: "New passwords do not match." });
 
         const isMatch = await bcrypt.compare(currentPassword, note.notePassword);
-        if (!isMatch) return res.status(401).json({ message: "Mật khẩu hiện tại không đúng." });
+        if (!isMatch) return res.status(401).json({ message: "Current password is incorrect." });
 
         const salt = await bcrypt.genSalt(10);
         note.notePassword = await bcrypt.hash(newPassword, salt);
         await note.save();
 
-        res.json({ message: "Đổi mật khẩu note thành công!" });
+        res.json({ message: "Note password changed successfully!" });
     } catch (error) {
-        res.status(500).json({ message: "Lỗi hệ thống." });
+        res.status(500).json({ message: "System error." });
     }
 };
 
@@ -92,18 +92,18 @@ exports.verifyNotePassword = async (req, res) => {
         const { password } = req.body;
         const note = await Note.findOne({ _id: req.params.id });
 
-        if (!note) return res.status(404).json({ message: "Không tìm thấy note." });
-        if (!note.isProtected) return res.status(400).json({ message: "Note này không có mật khẩu." });
+        if (!note) return res.status(404).json({ message: "Note not found." });
+        if (!note.isProtected) return res.status(400).json({ message: "Note is not protected." });
 
         const isMatch = await bcrypt.compare(password, note.notePassword);
-        if (!isMatch) return res.status(401).json({ message: "Mật khẩu không đúng." });
+        if (!isMatch) return res.status(401).json({ message: "Incorrect password." });
 
         // Trả về note đầy đủ sau khi xác thực
         const noteData = note.toObject();
         delete noteData.notePassword;
-        res.json({ message: "Xác thực thành công!", note: noteData });
+        res.json({ message: "Verification successful!", note: noteData });
     } catch (error) {
-        res.status(500).json({ message: "Lỗi hệ thống." });
+        res.status(500).json({ message: "System error." });
     }
 };
 
@@ -115,7 +115,7 @@ exports.shareNote = async (req, res) => {
         const { emails, permission } = req.body; // emails: mảng email
         const note = await Note.findOne({ _id: req.params.id, owner: req.user.id });
 
-        if (!note) return res.status(404).json({ message: "Không tìm thấy note." });
+        if (!note) return res.status(404).json({ message: "Note not found." });
 
         const results = [];
 
@@ -123,13 +123,13 @@ exports.shareNote = async (req, res) => {
             // Validate email phải là tài khoản đã đăng ký
             const recipient = await User.findOne({ email });
             if (!recipient) {
-                results.push({ email, status: 'Không tìm thấy tài khoản.' });
+                results.push({ email, status: 'User not found.' });
                 continue;
             }
 
             // Không chia sẻ với chính mình
             if (recipient._id.toString() === req.user.id) {
-                results.push({ email, status: 'Không thể chia sẻ với chính mình.' });
+                results.push({ email, status: 'Cannot share with yourself.' });
                 continue;
             }
 
@@ -146,21 +146,21 @@ exports.shareNote = async (req, res) => {
             await transporter.sendMail({
                 from: `"NoteApp" <${process.env.EMAIL_USER}>`,
                 to: email,
-                subject: `${owner.displayName} đã chia sẻ một ghi chú với bạn`,
+                subject: `${owner.displayName} shared a note with you!`,
                 html: `<h3>Chào ${recipient.displayName}!</h3>
                        <p><strong>${owner.displayName}</strong> đã chia sẻ ghi chú "<strong>${note.title}</strong>" với bạn.</p>
                        <p>Quyền truy cập: <strong>${permission === 'edit' ? 'Chỉnh sửa' : 'Chỉ xem'}</strong></p>
                        <a href="http://localhost:5173/dashboard" style="background:#37352f;color:white;padding:10px 20px;text-decoration:none;border-radius:5px;">Xem ngay</a>`
             });
 
-            results.push({ email, status: 'Chia sẻ thành công!' });
+            results.push({ email, status: 'Share successful!' });
         }
 
         await note.save();
-        res.json({ message: "Hoàn tất chia sẻ!", results });
+        res.json({ message: "Sharing completed!", results });
     } catch (error) {
         console.error(error);
-        res.status(500).json({ message: "Lỗi hệ thống." });
+        res.status(500).json({ message: "System error." });
     }
 };
 
@@ -170,11 +170,11 @@ exports.shareNote = async (req, res) => {
 exports.getShareDetails = async (req, res) => {
     try {
         const note = await Note.findOne({ _id: req.params.id, owner: req.user.id });
-        if (!note) return res.status(404).json({ message: "Không tìm thấy note." });
+        if (!note) return res.status(404).json({ message: "Note not found." });
 
         res.json({ noteId: note._id, title: note.title, sharedWith: note.sharedWith });
     } catch (error) {
-        res.status(500).json({ message: "Lỗi hệ thống." });
+        res.status(500).json({ message: "System error." });
     }
 };
 
@@ -185,16 +185,16 @@ exports.updateShare = async (req, res) => {
     try {
         const { email, permission } = req.body;
         const note = await Note.findOne({ _id: req.params.id, owner: req.user.id });
-        if (!note) return res.status(404).json({ message: "Không tìm thấy note." });
+        if (!note) return res.status(404).json({ message: "Note not found." });
 
         const share = note.sharedWith.find(s => s.email === email);
-        if (!share) return res.status(404).json({ message: "Không tìm thấy người dùng này." });
+        if (!share) return res.status(404).json({ message: "User not found." });
 
         share.permission = permission;
         await note.save();
-        res.json({ message: "Đã cập nhật quyền!" });
+        res.json({ message: "Permission updated successfully!" });
     } catch (error) {
-        res.status(500).json({ message: "Lỗi hệ thống." });
+        res.status(500).json({ message: "System error." });
     }
 };
 
@@ -202,13 +202,13 @@ exports.revokeShare = async (req, res) => {
     try {
         const { email } = req.body;
         const note = await Note.findOne({ _id: req.params.id, owner: req.user.id });
-        if (!note) return res.status(404).json({ message: "Không tìm thấy note." });
+        if (!note) return res.status(404).json({ message: "Note not found." });
 
         note.sharedWith = note.sharedWith.filter(s => s.email !== email);
         await note.save();
-        res.json({ message: "Đã thu hồi quyền chia sẻ!" });
+        res.json({ message: "Share revoked successfully!" });
     } catch (error) {
-        res.status(500).json({ message: "Lỗi hệ thống." });
+        res.status(500).json({ message: "System error." });
     }
 };
 
@@ -235,6 +235,6 @@ exports.sharedWithMe = async (req, res) => {
 
         res.json(result);
     } catch (error) {
-        res.status(500).json({ message: "Lỗi hệ thống." });
+        res.status(500).json({ message: "System error." });
     }
 };

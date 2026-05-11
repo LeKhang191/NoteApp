@@ -4,7 +4,7 @@ module.exports = (req, res, next) => {
     const authHeader = req.headers.authorization;
 
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
-        return res.status(401).json({ message: "Bạn chưa đăng nhập." });
+        return res.status(401).json({ message: "You are not authenticated." });
     }
 
     const token = authHeader.split(' ')[1];
@@ -14,6 +14,6 @@ module.exports = (req, res, next) => {
         req.user = decoded; // { id: '...' }
         next();
     } catch (error) {
-        return res.status(401).json({ message: "Token không hợp lệ hoặc đã hết hạn." });
+        return res.status(401).json({ message: "Invalid or expired token." });
     }
 };

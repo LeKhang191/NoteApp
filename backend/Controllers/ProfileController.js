@@ -20,7 +20,7 @@ const upload = multer({
     limits: { fileSize: 2 * 1024 * 1024 }, // 2MB
     fileFilter: (req, file, cb) => {
         if (file.mimetype.startsWith('image/')) cb(null, true);
-        else cb(new Error('Chỉ chấp nhận file ảnh!'));
+        else cb(new Error('only image files are allowed!'), false);
     }
 });
 
@@ -42,7 +42,7 @@ exports.getProfile = async (req, res) => {
             createdAt: user.createdAt
         });
     } catch (error) {
-        res.status(500).json({ message: "Lỗi lấy thông tin profile." });
+        res.status(500).json({ message: "System error while fetching profile." });
     }
 };
 
@@ -68,7 +68,7 @@ exports.updateProfile = async (req, res) => {
         await user.save();
 
         res.json({
-            message: "Cập nhật thông tin thành công!",
+            message: "Profile updated successfully!",
             user: {
                 id: user._id,
                 email: user.email,
@@ -78,6 +78,6 @@ exports.updateProfile = async (req, res) => {
             }
         });
     } catch (error) {
-        res.status(500).json({ message: "Lỗi cập nhật profile." });
+        res.status(500).json({ message: "System error while updating profile." });
     }
 };

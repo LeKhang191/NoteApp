@@ -21,14 +21,14 @@ exports.register = async (req, res) => {
         const { email, displayName, password, confirmPassword } = req.body;
 
         if (!email || !displayName || !password)
-            return res.status(400).json({ message: "Vui lòng điền đầy đủ thông tin." });
+            return res.status(400).json({ message: "Pls enter all required fields." });
 
         if (password !== confirmPassword)
-            return res.status(400).json({ message: "Mật khẩu xác nhận không khớp." });
+            return res.status(400).json({ message: "Confirm password does not match." });
 
         const existingUser = await User.findOne({ email });
         if (existingUser)
-            return res.status(400).json({ message: "Email này đã được đăng ký." });
+            return res.status(400).json({ message: "This email is already registered." });
 
         const salt = await bcrypt.genSalt(10);
         const hashedPassword = await bcrypt.hash(password, salt);
@@ -46,17 +46,17 @@ exports.register = async (req, res) => {
         await transporter.sendMail({
             from: `"NoteApp" <${process.env.EMAIL_USER}>`,
             to: email,
-            subject: 'Kích hoạt tài khoản NoteApp',
-            html: `<h3>Chào ${displayName}!</h3>
-                   <p>Nhấn vào link để kích hoạt tài khoản:</p>
-                   <a href="${activationUrl}" style="background:#37352f;color:white;padding:10px 20px;text-decoration:none;border-radius:5px;">Kích hoạt</a>
-                   <p>Link hết hạn sau 24 giờ.</p>`
+            subject: 'Activate Your NoteApp Account',
+            html: `<h3>Hello ${displayName}!</h3>
+                   <p>Click the link below to activate your account:</p>
+                   <a href="${activationUrl}" style="background:#37352f;color:white;padding:10px 20px;text-decoration:none;border-radius:5px;">Activate Account</a>
+                   <p>This link will expire in 24 hours.</p>`
         });
 
         const token = jwt.sign({ id: newUser._id }, process.env.JWT_SECRET, { expiresIn: '7d' });
 
         res.status(201).json({
-            message: "Đăng ký thành công! Kiểm tra email để kích hoạt.",
+            message: "Registration successful! Please check your email to activate your account.",
             token,
             user: { id: newUser._id, email: newUser.email, displayName: newUser.displayName, isActivated: false, avatar: null }
         });
@@ -76,15 +76,15 @@ exports.verifyEmail = async (req, res) => {
         const user = await User.findOne({ activationToken: token });
 
         if (!user)
-            return res.status(400).json({ message: "Link kích hoạt không hợp lệ hoặc đã hết hạn." });
+            return res.status(400).json({ message: "Invalid or expired activation link." });
 
         user.isActivated = true;
         user.activationToken = undefined;
         await user.save();
 
-        res.json({ message: "Kích hoạt tài khoản thành công!" });
+        res.json({ message: "Account activated successfully!" });
     } catch (error) {
-        res.status(500).json({ message: "Lỗi kích hoạt tài khoản." });
+        res.status(500).json({ message: "Error activating account." });
     }
 };
 
@@ -96,26 +96,26 @@ exports.login = async (req, res) => {
         const { email, password } = req.body;
 
         if (!email || !password)
-            return res.status(400).json({ message: "Vui lòng nhập email và mật khẩu." });
+            return res.status(400).json({ message: "Pls enter email and password." });
 
         const user = await User.findOne({ email });
         if (!user)
-            return res.status(401).json({ message: "Email hoặc mật khẩu không đúng." });
+            return res.status(401).json({ message: "Invalid email or password." });
 
         const isMatch = await bcrypt.compare(password, user.password);
         if (!isMatch)
-            return res.status(401).json({ message: "Email hoặc mật khẩu không đúng." });
+            return res.status(401).json({ message: "Invalid email or password." });
 
         const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '7d' });
 
         res.json({
-            message: "Đăng nhập thành công!",
+            message: "Login successful!",
             token,
             user: { id: user._id, email: user.email, displayName: user.displayName, isActivated: user.isActivated, avatar: user.avatar }
         });
     } catch (error) {
         console.error('Login error:', error);
-        res.status(500).json({ message: "Lỗi hệ thống khi đăng nhập." });
+        res.status(500).json({ message: "Error occurred while logging in." });
     }
 };
 
@@ -129,7 +129,7 @@ exports.forgotPassword = async (req, res) => {
 
         // Không tiết lộ email có tồn tại không
         if (!user)
-            return res.json({ message: "Nếu email tồn tại, bạn sẽ nhận được hướng dẫn." });
+            return res.json({ message: "If the email exists, you will receive instructions." });
 
         // Xóa token cũ nếu có
         await PasswordReset.deleteMany({ email });
@@ -149,18 +149,18 @@ exports.forgotPassword = async (req, res) => {
         await transporter.sendMail({
             from: `"NoteApp" <${process.env.EMAIL_USER}>`,
             to: email,
-            subject: 'Đặt lại mật khẩu NoteApp',
-            html: `<h3>Đặt lại mật khẩu</h3>
-                   <p>Nhấn link để đặt lại mật khẩu:</p>
-                   <a href="${resetUrl}" style="background:#37352f;color:white;padding:10px 20px;text-decoration:none;border-radius:5px;">Đặt lại mật khẩu</a>
-                   <p>Hoặc nhập mã OTP: <strong style="font-size:24px">${otp}</strong></p>
-                   <p>Hết hạn sau 15 phút.</p>`
+            subject: 'Reset Your NoteApp Password',
+            html: `<h3>Reset Your Password</h3>
+                   <p>Click the link below to reset your password:</p>
+                   <a href="${resetUrl}" style="background:#37352f;color:white;padding:10px 20px;text-decoration:none;border-radius:5px;">Reset Password</a>
+                   <p>Or enter the OTP: <strong style="font-size:24px">${otp}</strong></p>
+                   <p>This link will expire in 15 minutes.</p>`
         });
 
-        res.json({ message: "Email đặt lại mật khẩu đã được gửi!" });
+        res.json({ message: "Password reset email has been sent!" });
     } catch (error) {
         console.error('Forgot password error:', error);
-        res.status(500).json({ message: "Lỗi hệ thống." });
+        res.status(500).json({ message: "System error." });
     }
 };
 
@@ -178,11 +178,11 @@ exports.verifyOtp = async (req, res) => {
         });
 
         if (!record)
-            return res.status(400).json({ message: "OTP không hợp lệ hoặc đã hết hạn." });
+            return res.status(400).json({ message: "Invalid or expired OTP." });
 
-        res.json({ message: "OTP hợp lệ!", token: record.token });
+        res.json({ message: "Valid OTP!", token: record.token });
     } catch (error) {
-        res.status(500).json({ message: "Lỗi hệ thống." });
+        res.status(500).json({ message: "System error." });
     }
 };
 
@@ -194,7 +194,7 @@ exports.resetPassword = async (req, res) => {
         const { email, token, password, confirmPassword } = req.body;
 
         if (password !== confirmPassword)
-            return res.status(400).json({ message: "Mật khẩu xác nhận không khớp." });
+            return res.status(400).json({ message: "Confirm password does not match." });
 
         const record = await PasswordReset.findOne({
             email,
@@ -203,11 +203,11 @@ exports.resetPassword = async (req, res) => {
         });
 
         if (!record)
-            return res.status(400).json({ message: "Link không hợp lệ hoặc đã hết hạn." });
+            return res.status(400).json({ message: "Invalid or expired reset link." });
 
         const user = await User.findOne({ email });
         if (!user)
-            return res.status(404).json({ message: "Không tìm thấy tài khoản." });
+            return res.status(404).json({ message: "User not found." });
 
         const salt = await bcrypt.genSalt(10);
         user.password = await bcrypt.hash(password, salt);
@@ -216,9 +216,9 @@ exports.resetPassword = async (req, res) => {
         // Xóa token đã dùng
         await PasswordReset.deleteMany({ email });
 
-        res.json({ message: "Đặt lại mật khẩu thành công! Vui lòng đăng nhập lại." });
+        res.json({ message: "Password reset successful! Please log in again." });
     } catch (error) {
-        res.status(500).json({ message: "Lỗi hệ thống." });
+        res.status(500).json({ message: "System error." });
     }
 };
 
@@ -231,18 +231,18 @@ exports.changePassword = async (req, res) => {
         const user = await User.findById(req.user.id);
 
         if (!user)
-            return res.status(404).json({ message: "Không tìm thấy tài khoản." });
+            return res.status(404).json({ message: "User not found." });
 
         const isMatch = await bcrypt.compare(oldPassword, user.password);
         if (!isMatch)
-            return res.status(400).json({ message: "Mật khẩu cũ không đúng." });
+            return res.status(400).json({ message: "Old password is incorrect." });
 
         const salt = await bcrypt.genSalt(10);
         user.password = await bcrypt.hash(newPassword, salt);
         await user.save();
 
-        res.json({ message: "Đổi mật khẩu thành công!" });
+        res.json({ message: "Password changed successfully!" });
     } catch (error) {
-        res.status(500).json({ message: "Lỗi hệ thống." });
+        res.status(500).json({ message: "System error." });
     }
 };

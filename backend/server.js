@@ -18,8 +18,8 @@ app.use(cors({
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 mongoose.connect(process.env.MONGO_URI)
-    .then(() => console.log('✅ MongoDB đã kết nối thành công!'))
-    .catch(err => console.error('❌ Lỗi:', err.message));
+    .then(() => console.log('[O] MongoDB successfully connected!'))
+    .catch(err => console.error('[X] error:', err.message));
 
 // ← THÊM 3 DÒNG NÀY
 app.use('/api/auth',    authRoutes);
@@ -27,4 +27,4 @@ app.use('/api/profile', profileRoutes);
 app.use('/api/notes',   noteRoutes);
 
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => console.log(`🚀 Server đang chạy tại cổng ${PORT}`));
+app.listen(PORT, () => console.log(`Server successfully started on port ${PORT}`));
