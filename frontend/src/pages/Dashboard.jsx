@@ -5,6 +5,8 @@ import NotePasswordModal from '../components/NotePasswordModal';
 import ShareNoteModal from '../components/ShareNoteModal';
 import { useNavigate } from 'react-router-dom';
 import axiosClient from '../api/axiosClient';
+import socket from '../services/socket';
+
 import { 
   LayoutGrid, List, Search, Plus, Pin, Trash2, 
   Settings, Clock, ChevronLeft, Menu, Tag, BookOpen,
@@ -53,7 +55,17 @@ const Dashboard = () => {
     return () => clearTimeout(timer);
   }, [searchTerm]);
 
-  // Click note → nếu khóa thì hiện modal password
+useEffect(() => {
+    socket.on('note-updated', ({ content, title }) => {
+        setNewNote(prev => ({
+            ...prev,
+            ...(content !== undefined && { content }),
+            ...(title   !== undefined && { title }),
+        }));
+    });
+    return () => socket.off('note-updated');
+}, []);
+
   const handleNoteClick = (note) => {
     if (note.isProtected) {
       setPasswordModal({ noteId: note._id, mode: 'verify' });
@@ -100,6 +112,11 @@ const handleNoteChange = (field, value) => {
     const updated = { ...newNote, [field]: value };
     setNewNote(updated);
     if (editingNote) {
+        socket.emit('note-change', {
+            noteId:  editingNote._id,
+            content: updated.content,
+            title:   updated.title,
+        });
         autoSave(editingNote._id, updated.title, updated.content);
     }
 };
@@ -133,9 +150,10 @@ const handleNoteChange = (field, value) => {
   };
 
   const startEditing = (note) => {
-    setEditingNote(note);
-    setNewNote({ title: note.title, content: note.content, image: note.image || null });
-    setIsModalOpen(true);
+      setEditingNote(note);
+      setNewNote({ title: note.title, content: note.content, image: note.image || null });
+      setIsModalOpen(true);
+      socket.emit('join-note', note._id);
   };
 
   const handleImageChange = (e) => {

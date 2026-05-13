@@ -1,107 +1,191 @@
-﻿#1 [internal] load local bake definitions
-#1 reading from stdin 1.02kB done
+﻿docker-compose : time="2026-05-13T10:17:18+07:00" level=warning msg="C:\\Users\\Ducanhgalem\\NoteApp\\docker-compose.yml: the attribute `version` is obsolete, it will be ignored, please remove it to 
+avoid potential confusion"
+At line:1 char:1
++ docker-compose build --no-cache 2>&1 | Out-File -FilePath build-log.t ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (time="2026-05-1...tial confusion":String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+ Image noteapp-backend Building 
+ Image noteapp-frontend Building 
+#1 [internal] load local bake definitions
+#1 reading from stdin 1.04kB done
 #1 DONE 0.0s
 
-#2 [internal] load build definition from Dockerfile
-#2 transferring dockerfile: 242B 0.0s done
+#2 [backend internal] load build definition from Dockerfile
+#2 transferring dockerfile: 160B 0.0s done
 #2 DONE 0.1s
 
-#3 [internal] load metadata for docker.io/library/node:20-alpine
-#3 ...
+#3 [frontend internal] load build definition from Dockerfile
+#3 transferring dockerfile: 241B 0.0s done
+#3 DONE 0.1s
 
-#4 [auth] library/node:pull token for registry-1.docker.io
-#4 DONE 0.0s
+#4 [frontend internal] load metadata for docker.io/library/node:20-alpine
+#4 DONE 2.0s
 
-#3 [internal] load metadata for docker.io/library/node:20-alpine
-#3 DONE 1.8s
+#5 [frontend internal] load .dockerignore
+#5 transferring context: 2B done
+#5 DONE 0.0s
 
-#5 [internal] load .dockerignore
-#5 transferring context: 2B 0.0s done
-#5 DONE 0.1s
-
-#6 [internal] load build context
+#6 [frontend internal] load build context
 #6 DONE 0.0s
 
-#7 [1/7] FROM docker.io/library/node:20-alpine@sha256:fb4cd12c85ee03686f6af5362a0b0d56d50c58a04632e6c0fb8363f609372293
-#7 resolve docker.io/library/node:20-alpine@sha256:fb4cd12c85ee03686f6af5362a0b0d56d50c58a04632e6c0fb8363f609372293 0.1s done
+#7 [backend internal] load .dockerignore
+#7 transferring context: 2B done
 #7 DONE 0.1s
 
-#8 [2/7] WORKDIR /app
-#8 CACHED
+#8 [backend internal] load build context
+#8 transferring context: 750B 0.0s done
+#8 DONE 0.1s
 
-#6 [internal] load build context
-#6 transferring context: 677.20kB 1.3s done
-#6 DONE 1.4s
+#9 [backend 1/7] FROM docker.io/library/node:20-alpine@sha256:fb4cd12c85ee03686f6af5362a0b0d56d50c58a04632e6c0fb8363f609372293
+#9 resolve docker.io/library/node:20-alpine@sha256:fb4cd12c85ee03686f6af5362a0b0d56d50c58a04632e6c0fb8363f609372293
+#9 resolve docker.io/library/node:20-alpine@sha256:fb4cd12c85ee03686f6af5362a0b0d56d50c58a04632e6c0fb8363f609372293 0.1s done
+#9 DONE 0.1s
 
-#9 [3/7] COPY package*.json ./
-#9 DONE 0.2s
+#10 [frontend 2/7] WORKDIR /app
+#10 CACHED
 
-#10 [4/7] RUN npm install --legacy-peer-deps
-#10 24.34 
-#10 24.34 added 164 packages, and audited 165 packages in 24s
-#10 24.34 
-#10 24.34 34 packages are looking for funding
-#10 24.34   run `npm fund` for details
-#10 24.35 
-#10 24.35 found 0 vulnerabilities
-#10 24.36 npm notice
-#10 24.36 npm notice New major version of npm available! 10.8.2 -> 11.14.1
-#10 24.36 npm notice Changelog: https://github.com/npm/cli/releases/tag/v11.14.1
-#10 24.36 npm notice To update run: npm install -g npm@11.14.1
-#10 24.36 npm notice
-#10 DONE 25.8s
+#6 [frontend internal] load build context
+#6 transferring context: 1.30kB 0.0s done
+#6 DONE 0.0s
 
-#11 [5/7] COPY . .
-#11 DONE 6.0s
+#11 [backend 3/5] COPY package*.json ./
+#11 DONE 0.1s
 
-#12 [6/7] RUN npm run build
-#12 1.088 
-#12 1.088 > khang-notes-frontend@0.0.0 build
-#12 1.088 > vite build
-#12 1.088 
-#12 1.584 /app/node_modules/rollup/dist/native.js:115
-#12 1.584 		throw new Error(
-#12 1.584 		      ^
-#12 1.584 
-#12 1.584 Error: Cannot find module @rollup/rollup-linux-x64-musl. npm has a bug related to optional dependencies (https://github.com/npm/cli/issues/4828). Please try `npm i` again after removing both package-lock.json and node_modules directory.
-#12 1.584     at requireWithFriendlyError (/app/node_modules/rollup/dist/native.js:115:9)
-#12 1.584     at Object.<anonymous> (/app/node_modules/rollup/dist/native.js:124:76)
-#12 1.584     ... 3 lines matching cause stack trace ...
-#12 1.584     at Module._load (node:internal/modules/cjs/loader:1091:12)
-#12 1.584     at cjsLoader (node:internal/modules/esm/translators:298:15)
-#12 1.584     at ModuleWrap.<anonymous> (node:internal/modules/esm/translators:240:7)
-#12 1.584     at ModuleJob.run (node:internal/modules/esm/module_job:325:25)
-#12 1.584     at async ModuleLoader.import (node:internal/modules/esm/loader:606:24) {
-#12 1.584   [cause]: Error: Cannot find module '@rollup/rollup-linux-x64-musl'
-#12 1.584   Require stack:
-#12 1.584   - /app/node_modules/rollup/dist/native.js
-#12 1.584       at Module._resolveFilename (node:internal/modules/cjs/loader:1207:15)
-#12 1.584       at Module._load (node:internal/modules/cjs/loader:1038:27)
-#12 1.584       at Module.require (node:internal/modules/cjs/loader:1289:19)
-#12 1.584       at require (node:internal/modules/helpers:182:18)
-#12 1.584       at requireWithFriendlyError (/app/node_modules/rollup/dist/native.js:97:10)
-#12 1.584       at Object.<anonymous> (/app/node_modules/rollup/dist/native.js:124:76)
-#12 1.584       at Module._compile (node:internal/modules/cjs/loader:1521:14)
-#12 1.584       at Module._extensions..js (node:internal/modules/cjs/loader:1623:10)
-#12 1.584       at Module.load (node:internal/modules/cjs/loader:1266:32)
-#12 1.584       at Module._load (node:internal/modules/cjs/loader:1091:12) {
-#12 1.584     code: 'MODULE_NOT_FOUND',
-#12 1.584     requireStack: [ '/app/node_modules/rollup/dist/native.js' ]
-#12 1.584   }
-#12 1.584 }
-#12 1.584 
-#12 1.584 Node.js v20.20.2
-#12 ERROR: process "/bin/sh -c npm run build" did not complete successfully: exit code: 1
+#12 [frontend 3/7] COPY package.json ./
+#12 DONE 0.1s
+
+#13 [frontend 4/7] RUN npm install --legacy-peer-deps
+#13 ...
+
+#14 [backend 4/5] RUN npm install
+#14 22.81 
+#14 22.81 added 142 packages, and audited 143 packages in 22s
+#14 22.81 
+#14 22.81 28 packages are looking for funding
+#14 22.82   run `npm fund` for details
+#14 22.82 
+#14 22.82 found 0 vulnerabilities
+#14 22.82 npm notice
+#14 22.82 npm notice New major version of npm available! 10.8.2 -> 11.14.1
+#14 22.82 npm notice Changelog: https://github.com/npm/cli/releases/tag/v11.14.1
+#14 22.82 npm notice To update run: npm install -g npm@11.14.1
+#14 22.82 npm notice
+#14 DONE 24.3s
+
+#13 [frontend 4/7] RUN npm install --legacy-peer-deps
+#13 ...
+
+#15 [backend 5/5] COPY . .
+#15 DONE 0.2s
+
+#13 [frontend 4/7] RUN npm install --legacy-peer-deps
+#13 ...
+
+#16 [backend] exporting to image
+#16 exporting layers
+#16 exporting layers 9.6s done
+#16 exporting manifest sha256:7d05615b268485cf4d589ccc6f0a0b22b0c3cdf2a4b3c2db5aae6bb857baf204 0.1s done
+#16 exporting config sha256:79d8495fb6b06948e71a5bb030e2cd12c200125a19e111d0795370ea78b56c09 0.1s done
+#16 exporting attestation manifest sha256:0cba09de3374538d2c2daf3e3b92dec5477620ac23073455c7a0a879bc85f6b1 0.1s done
+#16 exporting manifest list sha256:d7f62e94f030186a38002070101567dc5b3892e6ef6f3122c4d1fc3f439904e0
+#16 exporting manifest list sha256:d7f62e94f030186a38002070101567dc5b3892e6ef6f3122c4d1fc3f439904e0 0.1s done
+#16 naming to docker.io/library/noteapp-backend:latest done
+#16 unpacking to docker.io/library/noteapp-backend:latest
+#16 unpacking to docker.io/library/noteapp-backend:latest 4.7s done
+#16 DONE 14.7s
+
+#13 [frontend 4/7] RUN npm install --legacy-peer-deps
+#13 ...
+
+#17 [backend] resolving provenance for metadata file
+#17 DONE 0.1s
+
+#13 [frontend 4/7] RUN npm install --legacy-peer-deps
+#13 40.57 
+#13 40.57 added 164 packages, and audited 165 packages in 39s
+#13 40.57 
+#13 40.57 34 packages are looking for funding
+#13 40.57   run `npm fund` for details
+#13 40.58 
+#13 40.58 found 0 vulnerabilities
+#13 40.58 npm notice
+#13 40.58 npm notice New major version of npm available! 10.8.2 -> 11.14.1
+#13 40.58 npm notice Changelog: https://github.com/npm/cli/releases/tag/v11.14.1
+#13 40.58 npm notice To update run: npm install -g npm@11.14.1
+#13 40.58 npm notice
+#13 DONE 42.6s
+
+#18 [frontend 5/7] COPY . .
+#18 DONE 0.7s
+
+#19 [frontend 6/7] RUN npm run build
+#19 1.118 
+#19 1.118 > khang-notes-frontend@0.0.0 build
+#19 1.118 > vite build
+#19 1.118 
+#19 1.685 vite v8.0.12 building client environment for production...
+#19 1.733 [2K
+transforming...Γ£ô 1803 modules transformed.
+#19 3.715 rendering chunks...
+#19 3.940 computing gzip size...
+#19 3.953 dist/index.html                   0.47 kB Γöé gzip:  0.31 kB
+#19 3.953 dist/assets/index-wH-B8hjI.css   22.82 kB Γöé gzip:  5.00 kB
+#19 3.953 dist/assets/index-DuFkLzc9.js   284.40 kB Γöé gzip: 89.14 kB
+#19 3.953 
+#19 3.963 Γ£ù Build failed in 2.27s
+#19 3.970 error during build:
+#19 3.970 Build failed with 1 error:
+#19 3.970 
+#19 3.970 Error: [vite]: Rolldown failed to resolve import "socket.io-client" from "/app/src/services/socket.js".
+#19 3.970 This is most likely unintended because it can break your application at runtime.
+#19 3.970 If you do want to externalize this module explicitly add it to
+#19 3.970 `build.rolldownOptions.external`
+#19 3.970     at viteLog (file:///app/node_modules/vite/dist/node/chunks/node.js:33145:57)
+#19 3.970     at onRollupLog (file:///app/node_modules/vite/dist/node/chunks/node.js:33177:7)
+#19 3.970     at onLog (file:///app/node_modules/vite/dist/node/chunks/node.js:32945:4)
+#19 3.970     at file:///app/node_modules/rolldown/dist/shared/rolldown-build-D_ShytiL.mjs:50:26
+#19 3.970     at logger (file:///app/node_modules/rolldown/dist/shared/rolldown-build-D_ShytiL.mjs:41:3)
+#19 3.970     at onLog (file:///app/node_modules/rolldown/dist/shared/bindingify-input-options-zrVFGksD.mjs:2013:32)
+#19 3.970     at aggregateBindingErrorsIntoJsError (file:///app/node_modules/rolldown/dist/shared/error-BrnLyQ-g.mjs:48:18)
+#19 3.970     at unwrapBindingResult (file:///app/node_modules/rolldown/dist/shared/error-BrnLyQ-g.mjs:18:128)
+#19 3.970     at #build (file:///app/node_modules/rolldown/dist/shared/rolldown-build-D_ShytiL.mjs:3257:34)
+#19 3.970     at async buildEnvironment (file:///app/node_modules/vite/dist/node/chunks/node.js:33052:64)
+#19 3.970     at async Object.build (file:///app/node_modules/vite/dist/node/chunks/node.js:33474:19)
+#19 3.970     at async Object.buildApp (file:///app/node_modules/vite/dist/node/chunks/node.js:33471:153)
+#19 3.970     at async CAC.<anonymous> (file:///app/node_modules/vite/dist/node/cli.js:778:3) {
+#19 3.970   errors: [Getter/Setter]
+#19 3.970 }
+#19 ERROR: process "/bin/sh -c npm run build" did not complete successfully: exit code: 1
 ------
- > [6/7] RUN npm run build:
-1.584       at Module._compile (node:internal/modules/cjs/loader:1521:14)
-1.584       at Module._extensions..js (node:internal/modules/cjs/loader:1623:10)
-1.584       at Module.load (node:internal/modules/cjs/loader:1266:32)
-1.584       at Module._load (node:internal/modules/cjs/loader:1091:12) {
-1.584     code: 'MODULE_NOT_FOUND',
-1.584     requireStack: [ '/app/node_modules/rollup/dist/native.js' ]
-1.584   }
-1.584 }
-1.584 
-1.584 Node.js v20.20.2
+ > [frontend 6/7] RUN npm run build:
+3.970     at onLog (file:///app/node_modules/rolldown/dist/shared/bindingify-input-options-zrVFGksD.mjs:2013:32)
+3.970     at aggregateBindingErrorsIntoJsError (file:///app/node_modules/rolldown/dist/shared/error-BrnLyQ-g.mjs:48:18)
+3.970     at unwrapBindingResult (file:///app/node_modules/rolldown/dist/shared/error-BrnLyQ-g.mjs:18:128)
+3.970     at #build (file:///app/node_modules/rolldown/dist/shared/rolldown-build-D_ShytiL.mjs:3257:34)
+3.970     at async buildEnvironment (file:///app/node_modules/vite/dist/node/chunks/node.js:33052:64)
+3.970     at async Object.build (file:///app/node_modules/vite/dist/node/chunks/node.js:33474:19)
+3.970     at async Object.buildApp (file:///app/node_modules/vite/dist/node/chunks/node.js:33471:153)
+3.970     at async CAC.<anonymous> (file:///app/node_modules/vite/dist/node/cli.js:778:3) {
+3.970   errors: [Getter/Setter]
+3.970 }
 ------
+Dockerfile:6
+
+--------------------
+
+   4 |     RUN npm install --legacy-peer-deps
+
+   5 |     COPY . .
+
+   6 | >>> RUN npm run build
+
+   7 |     RUN npm install -g serve
+
+   8 |     EXPOSE 3000
+
+--------------------
+
+target frontend: failed to solve: process "/bin/sh -c npm run build" did not complete successfully: exit code: 1
+
