@@ -1,9 +1,10 @@
 import { io } from 'socket.io-client';
 
-const io = new Server(server, {
-  cors: {
-    origin: "https://noteapp-frontend-w2l9.onrender.com", 
-    methods: ["GET", "POST"]
-  }
+const SOCKET_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+
+const socket = io(SOCKET_URL, {
+    transports: ['websocket', 'polling'],
+    withCredentials: true
 });
+
 export default socket;
