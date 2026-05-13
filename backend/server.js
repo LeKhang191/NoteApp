@@ -14,14 +14,15 @@ const noteAdvancedRoutes = require('./routers/noteAdvanced');
 const app    = express();
 const server = http.createServer(app);
 const io = new Server(server, {
-    cors: { origin: ['http://localhost:5173', 'http://localhost:3000, https://noteapp-frontend-w2l9.onrender.com'], credentials: true }
+    cors: { origin: ['http://localhost:5173', 'http://localhost:3000', 'https://noteapp-frontend-w2l9.onrender.com'], credentials: true }
 });
 
 app.use(express.json());
 app.use(cors({
-    origin: ['http://localhost:5173', 'http://localhost:3000'],
+    origin: ['http://localhost:5173', 'http://localhost:3000', 'https://noteapp-frontend-w2l9.onrender.com'],
     credentials: true
-}));app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+}));
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 mongoose.connect(process.env.MONGO_URI)
     .then(() => console.log('[O] MongoDB connected!'))
