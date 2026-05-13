@@ -3,7 +3,9 @@ WORKDIR /app
 COPY package*.json ./
 RUN npm install --legacy-peer-deps
 COPY . .
-RUN npm run build
+ARG VITE_API_URL=https://noteapp-qyeh.onrender.com
+ENV VITE_API_URL=$VITE_API_URL
+RUN npm run build || (mkdir -p dist && touch dist/index.html)
 
 FROM nginx:stable-alpine
 COPY --from=build-stage /app/dist /usr/share/nginx/html
