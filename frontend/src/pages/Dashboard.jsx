@@ -1,4 +1,5 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
+import { debounce } from '../utils/debounce';
 import NoteCard from '../components/NoteCard';
 import NotePasswordModal from '../components/NotePasswordModal';
 import ShareNoteModal from '../components/ShareNoteModal';
@@ -14,6 +15,8 @@ const Dashboard = () => {
   const navigate = useNavigate();
   const [viewMode, setViewMode] = useState('grid');
   const [editingNote, setEditingNote] = useState(null);
+  const autoSaveRef = useRef(null);
+  const [saveStatus, setSaveStatus] = useState(''); 
   const [searchTerm, setSearchTerm] = useState(""); 
   const [newNote, setNewNote] = useState({ title: "", content: "", image: null });
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -66,29 +69,40 @@ const Dashboard = () => {
   };
 
   // Tạo note mới
-  const handleSaveNote = async (e) => {
-    e.preventDefault();
-    if (!newNote.title.trim()) return;
+  const handleCreateNote = async () => {
     try {
-      if (editingNote) {
-        await axiosClient.put(`/notes/${editingNote._id}`, {
-          title: newNote.title,
-          content: newNote.content,
-        });
-      } else {
-        await axiosClient.post('/notes', {
-          title: newNote.title,
-          content: newNote.content,
-        });
-      }
-      await loadNotes();
-      setEditingNote(null);
-      setNewNote({ title: "", content: "", image: null });
-      setIsModalOpen(false);
+        const res = await axiosClient.post('/notes', { title: 'Untitled', content: '' });
+        await loadNotes();
+        startEditing(res.data);
     } catch (error) {
-      console.error('Save note error:', error);
+        console.error('Create note error:', error);
     }
-  };
+};
+
+// Auto-save khi đang edit
+const autoSave = useCallback(
+    debounce(async (noteId, title, content) => {
+        try {
+            setSaveStatus('Saving...');
+            await axiosClient.put(`/notes/${noteId}`, { title, content });
+            await loadNotes();
+            setSaveStatus('Saved ✓');
+            setTimeout(() => setSaveStatus(''), 2000);
+        } catch (err) {
+            setSaveStatus('Error saving');
+        }
+    }, 800),
+    []
+);
+
+// Khi user gõ trong modal
+const handleNoteChange = (field, value) => {
+    const updated = { ...newNote, [field]: value };
+    setNewNote(updated);
+    if (editingNote) {
+        autoSave(editingNote._id, updated.title, updated.content);
+    }
+};
 
   // Xóa note
   const handleDelete = async (e, note) => {
@@ -144,8 +158,12 @@ const Dashboard = () => {
     note.title.toLowerCase().includes(searchDebounce.toLowerCase()) ||
     note.content.toLowerCase().includes(searchDebounce.toLowerCase())
   );
-  const displayNotes = [...filteredNotes].sort((a, b) => (b.isPinned ? 1 : 0) - (a.isPinned ? 1 : 0));
-
+  const displayNotes = [...filteredNotes].sort((a, b) => {
+    if (b.isPinned && !a.isPinned) return 1;
+    if (a.isPinned && !b.isPinned) return -1;
+    if (a.isPinned && b.isPinned) return new Date(b.pinnedAt) - new Date(a.pinnedAt);
+    return new Date(b.createdAt) - new Date(a.createdAt);
+  });
   return (
     <div className="flex min-h-screen bg-white font-sans text-[#37352f]">
       {/* Sidebar */}
@@ -224,10 +242,10 @@ const Dashboard = () => {
         <div className="max-w-[1200px] w-full mx-auto px-6 md:px-16 py-12">
           <div className="flex justify-between items-center mb-8">
             <h1 className="text-4xl font-bold tracking-tight">My Notes</h1>
-            <button onClick={() => { setEditingNote(null); setNewNote({ title: "", content: "", image: null }); setIsModalOpen(true); }}
-              className="flex items-center gap-1.5 bg-[#37352f] text-white px-3 py-1.5 rounded text-sm font-medium hover:bg-black transition-all shadow-sm">
-              <Plus size={16} /> New
-            </button>
+              <button onClick={handleCreateNote}
+                className="flex items-center gap-1.5 bg-[#37352f] text-white px-3 py-1.5 rounded text-sm font-medium hover:bg-black transition-all shadow-sm">
+                <Plus size={16} /> New
+              </button>            
           </div>
 
           <div className="flex flex-col md:flex-row gap-4 justify-between items-center mb-8">
@@ -323,13 +341,17 @@ const Dashboard = () => {
       {isModalOpen && (
         <div className="fixed inset-0 bg-[#37352f]/40 flex items-center justify-center z-50 p-4 backdrop-blur-[1px]">
           <div className="bg-white w-full max-w-2xl rounded-lg p-10 shadow-2xl">
-            <form onSubmit={handleSaveNote}>
-              <input type="text" placeholder='Untitled'
-                className="w-full text-4xl font-bold mb-6 outline-none text-[#37352f] placeholder-gray-200"
-                value={newNote.title} onChange={(e) => setNewNote({...newNote, title: e.target.value})} autoFocus />
-              <textarea placeholder="Empty note..."
-                className="w-full outline-none text-gray-700 min-h-[200px] resize-none leading-relaxed text-lg"
-                value={newNote.content} onChange={(e) => setNewNote({...newNote, content: e.target.value})} />
+            <div className="text-right text-xs text-[#9b9a97] mb-2 h-4">{saveStatus}</div>
+
+            <input type="text" placeholder='Untitled'
+              className="w-full text-4xl font-bold mb-6 outline-none text-[#37352f] placeholder-gray-200"
+              value={newNote.title}
+              onChange={(e) => handleNoteChange('title', e.target.value)}
+              autoFocus />
+            <textarea placeholder="Empty note..."
+              className="w-full outline-none text-gray-700 min-h-[200px] resize-none leading-relaxed text-lg"
+              value={newNote.content}
+              onChange={(e) => handleNoteChange('content', e.target.value)} />
 
               {editingNote?.isProtected && (
                 <div className="mt-4 pt-4 border-t border-gray-100">
@@ -359,14 +381,12 @@ const Dashboard = () => {
               </div>
 
               <div className="flex justify-end gap-3 mt-10">
-                <button type="button" onClick={() => { setIsModalOpen(false); setEditingNote(null); }}
-                  className="px-3 py-1.5 text-sm text-[#9b9a97] hover:text-[#37352f]">Discard</button>
-                <button type="submit"
-                  className="px-4 py-1.5 bg-[#37352f] text-white rounded text-sm font-medium hover:bg-black transition-all">
-                  {editingNote ? "Save changes" : "Create note"}
-                </button>
+                  <button type="button"
+                      onClick={() => { setIsModalOpen(false); setEditingNote(null); setSaveStatus(''); }}
+                      className="px-4 py-1.5 bg-[#37352f] text-white rounded text-sm font-medium hover:bg-black transition-all">
+                      Close
+                  </button>
               </div>
-            </form>
           </div>
         </div>
       )}
