@@ -32,14 +32,27 @@ exports.createNote = async (req, res) => {
 exports.updateNote = async (req, res) => {
     try {
         const { title, content } = req.body;
-        const note = await Note.findOneAndUpdate(
-            { _id: req.params.id, owner: req.user.id },
-            { title, content },
-            { new: true }
-        ).select('-notePassword');
+
+        const [note, user] = await Promise.all([
+            Note.findById(req.params.id),
+            User.findById(req.user.id)
+        ]);
 
         if (!note) return res.status(404).json({ message: "Note not found." });
-        res.json(note);
+
+        const isOwner = note.owner.toString() === req.user.id;
+        const shareInfo = note.sharedWith.find(s => s.email === user.email);
+        const canEdit = isOwner || shareInfo?.permission === 'edit';
+
+        if (!canEdit) return res.status(403).json({ message: "No permission." });
+
+        note.title = title;
+        note.content = content;
+        await note.save();
+
+        const result = note.toObject();
+        delete result.notePassword;
+        res.json(result);
     } catch (error) {
         res.status(500).json({ message: "System error." });
     }

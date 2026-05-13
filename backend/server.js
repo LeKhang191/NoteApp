@@ -31,7 +31,6 @@ mongoose.connect(process.env.MONGO_URI)
 app.use('/api/auth',           authRoutes);
 app.use('/api/profile',        profileRoutes);
 app.use('/api/notes',          noteRoutes);
-app.use('/api/notes-advanced', noteAdvancedRoutes);
 
 io.on('connection', (socket) => {
     socket.on('join-note', (noteId) => socket.join(noteId));
