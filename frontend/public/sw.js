@@ -1,5 +1,10 @@
 const CACHE_NAME = 'noteapp-v1';
-const STATIC_ASSETS = ['/', '/index.html'];
+const STATIC_ASSETS = [
+    '/',
+    '/index.html',
+    '/src/main.jsx', 
+    '/style.css'
+];
 
 self.addEventListener('install', event => {
     event.waitUntil(
@@ -18,7 +23,6 @@ self.addEventListener('activate', event => {
 });
 
 self.addEventListener('fetch', event => {
-    // API calls: network first, fallback cache
     if (event.request.url.includes('/api/')) {
         event.respondWith(
             fetch(event.request)
@@ -31,7 +35,14 @@ self.addEventListener('fetch', event => {
         );
         return;
     }
-    // Static assets: cache first
+
+    if (event.request.mode === 'navigate') {
+        event.respondWith(
+            fetch(event.request).catch(() => caches.match('/index.html'))
+        );
+        return;
+    }
+
     event.respondWith(
         caches.match(event.request).then(cached => cached || fetch(event.request))
     );

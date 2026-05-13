@@ -42,23 +42,37 @@ exports.register = async (req, res) => {
         });
 
         // Gửi email kích hoạt
-        const activationUrl = `http://localhost:5173/verify/${activationToken}`;
+const frontendUrl = process.env.FRONTEND_URL || "http://localhost:3000";
+        const activationUrl = `${frontendUrl}/verify-email/${activationToken}`;
+
+        // 2. Gửi mail qua Transporter
         await transporter.sendMail({
             from: `"NoteApp" <${process.env.EMAIL_USER}>`,
             to: email,
             subject: 'Activate Your NoteApp Account',
-            html: `<h3>Hello ${displayName}!</h3>
-                   <p>Click the link below to activate your account:</p>
-                   <a href="${activationUrl}" style="background:#37352f;color:white;padding:10px 20px;text-decoration:none;border-radius:5px;">Activate Account</a>
-                   <p>This link will expire in 24 hours.</p>`
+            html: `
+                <div style="font-family: sans-serif; color: #37352f;">
+                    <h3>Hello ${displayName}!</h3>
+                    <p>Click the link below to activate your account:</p>
+                    <a href="${activationUrl}" style="background:#37352f;color:white;padding:10px 20px;text-decoration:none;border-radius:5px;display:inline-block;">Activate Account</a>
+                    <p style="margin-top:20px; color:#9b9a97; font-size:12px;">Link: ${activationUrl}</p>
+                    <p>This link will expire in 24 hours.</p>
+                </div>`
         });
 
+        // 3. Tạo Token đăng nhập ngay (nếu cần)
         const token = jwt.sign({ id: newUser._id }, process.env.JWT_SECRET, { expiresIn: '7d' });
 
         res.status(201).json({
             message: "Registration successful! Please check your email to activate your account.",
             token,
-            user: { id: newUser._id, email: newUser.email, displayName: newUser.displayName, isActivated: false, avatar: null }
+            user: { 
+                id: newUser._id, 
+                email: newUser.email, 
+                displayName: newUser.displayName, 
+                isActivated: false, 
+                avatar: null 
+            }
         });
 
     } catch (error) {
