@@ -1,6 +1,6 @@
 const Note = require('../models/Note');
 const bcrypt = require('bcryptjs');
-
+const User = require('../models/User');
 // LẤY TẤT CẢ NOTES CỦA USER
 exports.getNotes = async (req, res) => {
     try {

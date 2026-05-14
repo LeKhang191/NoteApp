@@ -42,7 +42,7 @@ exports.register = async (req, res) => {
         });
 
         // Gửi email kích hoạt
-const frontendUrl = process.env.FRONTEND_URL || "http://localhost:3000";
+        const frontendUrl = process.env.FRONTEND_URL || "http://localhost:3000";
         const activationUrl = `${frontendUrl}/verify-email/${activationToken}`;
 
         // 2. Gửi mail qua Transporter
@@ -61,7 +61,7 @@ const frontendUrl = process.env.FRONTEND_URL || "http://localhost:3000";
         });
 
         // 3. Tạo Token đăng nhập ngay (nếu cần)
-        const token = jwt.sign({ id: newUser._id }, process.env.JWT_SECRET, { expiresIn: '7d' });
+        const token = jwt.sign({ id: user._id, email: user.email }, process.env.JWT_SECRET, { expiresIn: '7d' });
 
         res.status(201).json({
             message: "Registration successful! Please check your email to activate your account.",
