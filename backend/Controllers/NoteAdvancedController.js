@@ -150,7 +150,7 @@ exports.shareNote = async (req, res) => {
                 html: `<h3>Chào ${recipient.displayName}!</h3>
                        <p><strong>${owner.displayName}</strong> đã chia sẻ ghi chú "<strong>${note.title}</strong>" với bạn.</p>
                        <p>Quyền truy cập: <strong>${permission === 'edit' ? 'Chỉnh sửa' : 'Chỉ xem'}</strong></p>
-                       <a href="https://noteapp-frontend-w2l9.onrender.com/dashboard" style="background:#37352f;color:white;padding:10px 20px;text-decoration:none;border-radius:5px;">Xem ngay</a>`
+                       <a href="http://localhost:3000/dashboard" style="background:#37352f;color:white;padding:10px 20px;text-decoration:none;border-radius:5px;">Xem ngay</a>`
             });
 
             results.push({ email, status: 'Share successful!' });
