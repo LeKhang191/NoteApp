@@ -61,7 +61,7 @@ exports.register = async (req, res) => {
         });
 
         // 3. Tạo Token đăng nhập ngay (nếu cần)
-        const token = jwt.sign({ id: user._id, email: user.email }, process.env.JWT_SECRET, { expiresIn: '7d' });
+        const token = jwt.sign({ id: newUser._id, email: newUser.email }, process.env.JWT_SECRET, { expiresIn: '7d' });
 
         res.status(201).json({
             message: "Registration successful! Please check your email to activate your account.",
@@ -120,7 +120,7 @@ exports.login = async (req, res) => {
         if (!isMatch)
             return res.status(401).json({ message: "Invalid email or password." });
 
-        const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '7d' });
+        const token = jwt.sign({ id: user._id, email: user.email }, process.env.JWT_SECRET, { expiresIn: '7d' });
 
         res.json({
             message: "Login successful!",
@@ -158,7 +158,7 @@ exports.forgotPassword = async (req, res) => {
             expiresAt: new Date(Date.now() + 15 * 60 * 1000) // 15 phút
         });
 
-        const resetUrl = `http://localhost:5173/reset-password?token=${token}&email=${encodeURIComponent(email)}`;
+        const resetUrl = `http://localhost:3000/reset-password?token=${token}&email=${encodeURIComponent(email)}`;
 
         await transporter.sendMail({
             from: `"NoteApp" <${process.env.EMAIL_USER}>`,

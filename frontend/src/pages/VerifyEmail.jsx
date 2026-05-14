@@ -39,7 +39,7 @@ const VerifyEmail = () => {
           <>
             <div className="text-5xl mb-4">✅</div>
             <h2 className="text-xl font-bold text-[#37352f] mb-2">Kích hoạt thành công!</h2>
-            <p className="text-[#9b9a97] text-sm">Đang chuyển về Dashboard...</p>
+            <p className="text-[#9b9a97] text-sm">Đang chuyển về trang đăng nhập...</p>
           </>
         )}
         {status === 'error' && (

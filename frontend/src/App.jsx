@@ -45,9 +45,9 @@ function App() {
         <Route path="/preferences" element={
           <PrivateRoute><PreferencesPage /></PrivateRoute>
         } />
-        <Route path="/verify/:token" element={
-          <VerifyEmail />
-        } />
+        <Route path="/verify-email/:token" element={
+          <VerifyEmail />} />
+
         <Route path="/change-password" element={
           <PrivateRoute><ChangePassword /></PrivateRoute>
         } />

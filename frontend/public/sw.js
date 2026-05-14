@@ -1,14 +1,8 @@
-const CACHE_NAME = 'noteapp-v1';
-const STATIC_ASSETS = [
-    '/',
-    '/index.html',
-    '/src/main.jsx', 
-    '/style.css'
-];
+const CACHE_NAME = 'noteapp-v2';
 
 self.addEventListener('install', event => {
     event.waitUntil(
-        caches.open(CACHE_NAME).then(cache => cache.addAll(STATIC_ASSETS))
+        caches.open(CACHE_NAME).then(cache => cache.addAll(['/']))
     );
     self.skipWaiting();
 });
@@ -23,6 +17,7 @@ self.addEventListener('activate', event => {
 });
 
 self.addEventListener('fetch', event => {
+    // API: network first, fallback cache
     if (event.request.url.includes('/api/')) {
         event.respondWith(
             fetch(event.request)
@@ -36,14 +31,23 @@ self.addEventListener('fetch', event => {
         return;
     }
 
+    // Navigation: network first, fallback index.html
     if (event.request.mode === 'navigate') {
         event.respondWith(
-            fetch(event.request).catch(() => caches.match('/index.html'))
+            fetch(event.request).catch(() => caches.match('/'))
         );
         return;
     }
 
+    // Static assets: cache first, fallback network
     event.respondWith(
-        caches.match(event.request).then(cached => cached || fetch(event.request))
+        caches.match(event.request).then(cached => {
+            if (cached) return cached;
+            return fetch(event.request).then(res => {
+                const clone = res.clone();
+                caches.open(CACHE_NAME).then(cache => cache.put(event.request, clone));
+                return res;
+            });
+        })
     );
 });

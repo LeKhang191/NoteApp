@@ -33,7 +33,7 @@ const Dashboard = () => {
   // Debounce search
   const [searchDebounce, setSearchDebounce] = useState("");
 
-  const user = JSON.parse(localStorage.getItem('user') || '{}');
+  const [user, setUser] = useState(JSON.parse(localStorage.getItem('user') || '{}'));
 
   // Load notes từ API
   const loadNotes = useCallback(async () => {
