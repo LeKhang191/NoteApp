@@ -16,10 +16,11 @@ exports.getNotes = async (req, res) => {
 // TẠO NOTE MỚI
 exports.createNote = async (req, res) => {
     try {
-        const { title, content } = req.body;
+        const { title, content, image } = req.body;
         const note = await Note.create({
             title: title || '',
             content: content || '',
+            image: image || null,
             owner: req.user.id,
         });
         res.status(201).json(note);
@@ -46,8 +47,10 @@ exports.updateNote = async (req, res) => {
 
         if (!canEdit) return res.status(403).json({ message: "No permission." });
 
-        note.title = title;
-        note.content = content;
+        if (title !== undefined) note.title = title;
+        if (content !== undefined) note.content = content;
+        if (image !== undefined) note.image = image;
+        
         await note.save();
 
         const result = note.toObject();
