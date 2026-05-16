@@ -180,7 +180,7 @@ const AuthPage = () => {
             className="text-sm text-[#37352f] opacity-60 hover:opacity-100 hover:underline underline-offset-4 transition-all"
           >
             {isLogin ? "Don't have an account? Sign up" : "Already have an account? Log in"}
-https://github.com/LeKhang191/ky-hoa-uah.git          </button>
+        </button>
         </div>
       </div>
 
