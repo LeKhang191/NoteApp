@@ -16,10 +16,11 @@ exports.getNotes = async (req, res) => {
 // TẠO NOTE MỚI
 exports.createNote = async (req, res) => {
     try {
-        const { title, content } = req.body;
+        const { title, content, image } = req.body;
         const note = await Note.create({
             title: title || '',
             content: content || '',
+            image: image || null,
             owner: req.user.id,
         });
         res.status(201).json(note);
@@ -31,7 +32,7 @@ exports.createNote = async (req, res) => {
 // CẬP NHẬT NOTE
 exports.updateNote = async (req, res) => {
     try {
-        const { title, content } = req.body;
+        const { title, content, image } = req.body;
 
         const [note, user] = await Promise.all([
             Note.findById(req.params.id),
@@ -45,9 +46,13 @@ exports.updateNote = async (req, res) => {
         const canEdit = isOwner || shareInfo?.permission === 'edit';
 
         if (!canEdit) return res.status(403).json({ message: "No permission." });
-
+        if (title !== undefined) note.title = title;
+        if (content !== undefined) note.content = content;
+        if (image !== undefined) note.image = image;
+        
         note.title = title;
         note.content = content;
+        note.image = image || null;
         await note.save();
 
         const result = note.toObject();

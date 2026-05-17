@@ -93,10 +93,10 @@ useEffect(() => {
 
 // Auto-save khi đang edit
 const autoSave = useCallback(
-    debounce(async (noteId, title, content) => {
+    debounce(async (noteId, title, content, image) => {
         try {
             setSaveStatus('Saving...');
-            await axiosClient.put(`/notes/${noteId}`, { title, content });
+            await axiosClient.put(`/notes/${noteId}`, { title, content, image });
             await loadNotes();
             setSaveStatus('Saved ✓');
             setTimeout(() => setSaveStatus(''), 2000);
@@ -116,8 +116,9 @@ const handleNoteChange = (field, value) => {
             noteId:  editingNote._id,
             content: updated.content,
             title:   updated.title,
+            image:   updated.image,
         });
-        autoSave(editingNote._id, updated.title, updated.content);
+        autoSave(editingNote._id, updated.title, updated.content, updated.image);
     }
 };
 
@@ -157,13 +158,30 @@ const handleNoteChange = (field, value) => {
   };
 
   const handleImageChange = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => setNewNote({ ...newNote, image: reader.result });
-      reader.readAsDataURL(file);
-    }
-  };
+  const file = e.target.files[0];
+  if (file) {
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      const base64Image = reader.result;
+      
+      setNewNote(prev => {
+        const updated = { ...prev, image: base64Image };
+        
+        if (editingNote) {
+          autoSave(editingNote._id, updated.title, updated.content, base64Image);
+
+          setNotes(prevNotes => 
+            prevNotes.map(note => 
+              note._id === editingNote._id ? { ...note, image: base64Image } : note
+            )
+          );
+        }
+        return updated;
+      });
+    };
+    reader.readAsDataURL(file);
+  }
+};
 
   // Cập nhật isProtected sau enable/disable
   const handlePasswordSuccess = () => {
