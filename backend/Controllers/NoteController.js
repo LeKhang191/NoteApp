@@ -46,13 +46,11 @@ exports.updateNote = async (req, res) => {
         const canEdit = isOwner || shareInfo?.permission === 'edit';
 
         if (!canEdit) return res.status(403).json({ message: "No permission." });
+
         if (title !== undefined) note.title = title;
         if (content !== undefined) note.content = content;
         if (image !== undefined) note.image = image;
         
-        note.title = title;
-        note.content = content;
-        note.image = image || null;
         await note.save();
 
         const result = note.toObject();

@@ -41,12 +41,32 @@ exports.register = async (req, res) => {
             isActivated: false
         });
 
-        // Gửi email kích hoạt
-        const frontendUrl = process.env.FRONTEND_URL || "http://localhost:3000";
+        // Tạo JWT token trước
+        const token = jwt.sign(
+            { id: newUser._id, email: newUser.email },
+            process.env.JWT_SECRET,
+            { expiresIn: '7d' }
+        );
+
+        // Tra ve thanh cong NGAY - khong cho email
+        res.status(201).json({
+            message: "Registration successful! Please check your email to activate your account.",
+            token,
+            user: {
+                id: newUser._id,
+                email: newUser.email,
+                displayName: newUser.displayName,
+                isActivated: false,
+                avatar: null
+            }
+        });
+
+        // Gui email SAU KHI da tra response (non-blocking)
+        // Neu mail loi -> user van dang ky duoc, chi log ra Docker console
+        const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
         const activationUrl = `${frontendUrl}/verify-email/${activationToken}`;
 
-        // 2. Gửi mail qua Transporter
-        await transporter.sendMail({
+        transporter.sendMail({
             from: `"NoteApp" <${process.env.EMAIL_USER}>`,
             to: email,
             subject: 'Activate Your NoteApp Account',
@@ -58,31 +78,22 @@ exports.register = async (req, res) => {
                     <p style="margin-top:20px; color:#9b9a97; font-size:12px;">Link: ${activationUrl}</p>
                     <p>This link will expire in 24 hours.</p>
                 </div>`
-        });
-
-        // 3. Tạo Token đăng nhập ngay (nếu cần)
-        const token = jwt.sign({ id: newUser._id, email: newUser.email }, process.env.JWT_SECRET, { expiresIn: '7d' });
-
-        res.status(201).json({
-            message: "Registration successful! Please check your email to activate your account.",
-            token,
-            user: { 
-                id: newUser._id, 
-                email: newUser.email, 
-                displayName: newUser.displayName, 
-                isActivated: false, 
-                avatar: null 
-            }
+        }).then(() => {
+            console.log(`[OK] Activation email sent to ${email}`);
+        }).catch((mailErr) => {
+            console.error(`[FAIL] Could not send activation email to ${email}`);
+            console.error(`  Reason: ${mailErr.message}`);
+            console.error(`  EMAIL_USER=${process.env.EMAIL_USER ? 'set' : 'MISSING'}, EMAIL_PASS=${process.env.EMAIL_PASS ? 'set' : 'MISSING'}`);
         });
 
     } catch (error) {
         console.error('Register error:', error);
-        res.status(500).json({ message: "Lỗi hệ thống khi đăng ký." });
+        res.status(500).json({ message: "Loi he thong khi dang ky." });
     }
 };
 
 // =============================================
-// 2. KÍCH HOẠT TÀI KHOẢN
+// 2. KICH HOAT TAI KHOAN
 // =============================================
 exports.verifyEmail = async (req, res) => {
     try {
@@ -103,7 +114,7 @@ exports.verifyEmail = async (req, res) => {
 };
 
 // =============================================
-// 3. ĐĂNG NHẬP
+// 3. DANG NHAP
 // =============================================
 exports.login = async (req, res) => {
     try {
@@ -134,33 +145,35 @@ exports.login = async (req, res) => {
 };
 
 // =============================================
-// 4. QUÊN MẬT KHẨU - GỬI EMAIL
+// 4. QUEN MAT KHAU - GUI EMAIL
 // =============================================
 exports.forgotPassword = async (req, res) => {
     try {
         const { email } = req.body;
         const user = await User.findOne({ email });
 
-        // Không tiết lộ email có tồn tại không
         if (!user)
             return res.json({ message: "If the email exists, you will receive instructions." });
 
-        // Xóa token cũ nếu có
         await PasswordReset.deleteMany({ email });
 
         const token = crypto.randomBytes(32).toString('hex');
-        const otp = String(Math.floor(100000 + Math.random() * 900000)); // OTP 6 số
+        const otp = String(Math.floor(100000 + Math.random() * 900000));
 
         await PasswordReset.create({
             email,
             token,
             otp,
-            expiresAt: new Date(Date.now() + 15 * 60 * 1000) // 15 phút
+            expiresAt: new Date(Date.now() + 15 * 60 * 1000)
         });
 
-        const resetUrl = `http://localhost:3000/reset-password?token=${token}&email=${encodeURIComponent(email)}`;
+        const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
+        const resetUrl = `${frontendUrl}/reset-password?token=${token}&email=${encodeURIComponent(email)}`;
 
-        await transporter.sendMail({
+        // Tra response truoc, gui mail sau (non-blocking)
+        res.json({ message: "Password reset email has been sent!" });
+
+        transporter.sendMail({
             from: `"NoteApp" <${process.env.EMAIL_USER}>`,
             to: email,
             subject: 'Reset Your NoteApp Password',
@@ -169,9 +182,12 @@ exports.forgotPassword = async (req, res) => {
                    <a href="${resetUrl}" style="background:#37352f;color:white;padding:10px 20px;text-decoration:none;border-radius:5px;">Reset Password</a>
                    <p>Or enter the OTP: <strong style="font-size:24px">${otp}</strong></p>
                    <p>This link will expire in 15 minutes.</p>`
+        }).then(() => {
+            console.log(`[OK] Reset password email sent to ${email}`);
+        }).catch((mailErr) => {
+            console.error(`[FAIL] Could not send reset email to ${email}: ${mailErr.message}`);
         });
 
-        res.json({ message: "Password reset email has been sent!" });
     } catch (error) {
         console.error('Forgot password error:', error);
         res.status(500).json({ message: "System error." });
@@ -179,7 +195,7 @@ exports.forgotPassword = async (req, res) => {
 };
 
 // =============================================
-// 4. XÁC NHẬN OTP
+// 5. XAC NHAN OTP
 // =============================================
 exports.verifyOtp = async (req, res) => {
     try {
@@ -201,7 +217,7 @@ exports.verifyOtp = async (req, res) => {
 };
 
 // =============================================
-// 4. ĐẶT LẠI MẬT KHẨU MỚI
+// 6. DAT LAI MAT KHAU MOI
 // =============================================
 exports.resetPassword = async (req, res) => {
     try {
@@ -227,7 +243,6 @@ exports.resetPassword = async (req, res) => {
         user.password = await bcrypt.hash(password, salt);
         await user.save();
 
-        // Xóa token đã dùng
         await PasswordReset.deleteMany({ email });
 
         res.json({ message: "Password reset successful! Please log in again." });
@@ -237,7 +252,7 @@ exports.resetPassword = async (req, res) => {
 };
 
 // =============================================
-// 7. ĐỔI MẬT KHẨU
+// 7. DOI MAT KHAU
 // =============================================
 exports.changePassword = async (req, res) => {
     try {

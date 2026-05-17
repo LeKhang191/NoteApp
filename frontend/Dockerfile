@@ -5,7 +5,7 @@ RUN npm install --legacy-peer-deps
 COPY . .
 ARG VITE_API_URL=http://localhost:5000
 ENV VITE_API_URL=$VITE_API_URL
-RUN npm run build || (mkdir -p dist && touch dist/index.html)
+RUN npm run build 
 
 FROM nginx:stable-alpine
 COPY --from=build-stage /app/dist /usr/share/nginx/html

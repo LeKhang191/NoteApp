@@ -179,8 +179,8 @@ const AuthPage = () => {
             onClick={() => { setIsLogin(!isLogin); setError(''); setShowPassword(false); setShowConfirm(false); }}
             className="text-sm text-[#37352f] opacity-60 hover:opacity-100 hover:underline underline-offset-4 transition-all"
           >
-            {isLogin ? "Don't have an account? Sign up" : "Already have an account? Log in"}       
-          </button>
+            {isLogin ? "Don't have an account? Sign up" : "Already have an account? Log in"}
+        </button>
         </div>
       </div>
 
